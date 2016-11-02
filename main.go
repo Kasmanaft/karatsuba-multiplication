@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"strconv"
+	"strings"
 )
 
 var (
@@ -52,7 +53,7 @@ func Sub(x, y string) string {
 	xa := []byte(x)
 	ya := []byte(y)
 	z := ""
-	for i, _ := range x {
+	for i := range x {
 		xl, _ := strconv.Atoi(string(xa[n-i-1]))
 		yl, _ := strconv.Atoi(string(ya[n-i-1]))
 		if yl > xl {
@@ -67,7 +68,7 @@ func Sub(x, y string) string {
 	if carry > 0 {
 		carry = 0
 		result = ""
-		for i, _ := range x {
+		for i := range x {
 			xl, _ := strconv.Atoi(string(xa[n-i-1]))
 			yl, _ := strconv.Atoi(string(ya[n-i-1]))
 			if xl > yl {
@@ -89,18 +90,25 @@ func Mul(x, y string) string {
 	if n < 2 {
 		xn, _ := strconv.Atoi(x)
 		yn, _ := strconv.Atoi(y)
-		xyn := xn * yn
-		return strconv.Itoa(xyn)
+		return strconv.Itoa(xn * yn)
 	}
-	return "0"
-	//
-	// m := n / 2
-	//
-	// z2 := Mul(x1, y1)
-	// z1 := Mul(Add(x1, x2), Add(y1, y2))
-	// z0 := Mul(x2, y2)
-	//
-	// rezult := (z2 * (10 * *n)) + ((z1 - z2 - z0) * (10 * *m)) + z0
-	//
-	// return rezult
+
+	m := n / 2
+	x1, x2 := SplitString(x)
+	y1, y2 := SplitString(y)
+
+	z2 := Mul(x1, y1)
+	z1 := Mul(Add(x1, x2), Add(y1, y2))
+	z0 := Mul(x2, y2)
+
+	r0 := z2 + strings.Repeat("0", n)
+	r1 := Sub(Sub(z1, z2), z0) + strings.Repeat("0", m)
+
+	return r0 + r1 + z0
+}
+
+func SplitString(s string) (sl, sr string) {
+	sb := []byte(s)
+	n := len(sb)
+	return string(sb[:n/2]), string(sb[n/2:])
 }

@@ -1,6 +1,11 @@
 package main
 
-import "testing"
+import (
+	"encoding/csv"
+	"io"
+	"os"
+	"testing"
+)
 
 func TestAdd(t *testing.T) {
 	var v string
@@ -43,5 +48,42 @@ func TestSub(t *testing.T) {
 	v = Sub("876", "642")
 	if v != "234" {
 		t.Error("Expected 234, got ", v)
+	}
+}
+
+func TestSplitString(t *testing.T) {
+	var sl, sr string
+	sl, sr = SplitString("1234")
+	if sl != "12" {
+		t.Error("Expected 12, got ", sl)
+	} else if sr != "34" {
+		t.Error("Expected 34, got ", sr)
+	}
+}
+
+func TestMul(t *testing.T) {
+	f, err := os.Open("test_cases.csv")
+	if err != nil {
+		t.Error("Can't open test file")
+	}
+	defer f.Close()
+
+	r := csv.NewReader(f)
+	var v string
+
+	for {
+		record, err := r.Read()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			t.Error("Can't read test file (may be not a csv?)")
+		}
+
+		v = Sub(record[0], record[1])
+		if v != record[2] {
+			t.Error("Expected ", record[2], " got ", v)
+		}
+
 	}
 }
